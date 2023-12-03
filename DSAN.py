@@ -28,9 +28,7 @@ class Array: #Array and separators
         return self.compare(self, x) != -1
     
     @staticmethod
-    def compare(a, b): #Compare arrays        
-        print(f"{a} & {b}")
-        
+    def compare(a, b): #Compare arrays     
         a0 = 0
         b0 = 0
         if len(a.seps) == 0:
@@ -38,52 +36,41 @@ class Array: #Array and separators
         if len(b.seps) == 0:
             b0 = 1
         if a0 and not b0:
-            print("a0 and not b0")
             return -1
         if b0 and not a0:   
-            print("b0 and not a0")
             return 1
         if a0 and b0:
-            print("a0 and b0")
             if a.fentry > b.fentry:   
                 return 1
             elif a.fentry < b.fentry:  
                 return -1
             else:   
                 return 0
-                   
-        print("not a0 nor b0")
         
         i = 0
         aBig = a.seps[i]
         aBigPos = 0
         while i < len(a.seps):
             if Array.compare(a.seps[i].array, aBig.array) == 1:
-                print(f"aBig = {aBig.array}")
                 aBig = a.seps[i]
                 aBigPos = i
             i += 1
-        print(f"aBig chosen ({aBig.array})")
             
         i = 0
         bBig = b.seps[i]
         bBigPos = 0
         while i < len(b.seps):
             if Array.compare(b.seps[i].array, bBig.array) == 1:
-                print(f"bBig = {bBig.array}")
                 bBig = b.seps[i]
                 bBigPos = i
             i += 1
-        print(f"bBig chosen ({bBig.array})")
                   
         compBig = Array.compare(aBig.array, bBig.array)
         if compBig == 0:
-            print("aBig = bBig")
             aBigRight = Array(aBig.entry, a.seps[aBigPos + 1:])
             bBigRight = Array(bBig.entry, b.seps[bBigPos + 1:])
             compRight = Array.compare(aBigRight, bBigRight)
             if compRight == 0:
-                print("aBigRight = bBigRight")
                 aBigLeft = Array(a.fentry, a.seps[:aBigPos])
                 bBigLeft = Array(b.fentry, b.seps[:bBigPos])
                 return Array.compare(aBigLeft, bBigLeft)
@@ -117,7 +104,6 @@ class Array: #Array and separators
                 else:
                     self.seps.pop(i)
         
-        print(f"As: {self}")
         return self
     
     def map(self, mapper): #Map/diagonalize array
@@ -128,29 +114,21 @@ class Array: #Array and separators
         if i >= len(self.seps): #Is array empty? (should never be the case, but you never know)
             return self.simplify()
         
-        print(f"B: {self}")
-        
         self.seps[i].entry -= 1
         if self.seps[i].array.fentry > 0: #Is separator's first entry greater than 0?
             new_array = cpy(self.seps[i].array)
             new_array.fentry -= 1
             self.seps[i:i] = [Separator(new_array, 0)] * (mapper - 1) + [Separator(new_array, 1)]
-            print(f"1: {self}")
         elif self.seps[i].array.fentry == 0: #Does separator's first entry equal 0?
             if len(self.seps[i].array.seps) == 0: #Is it a comma?
                 if i == 0:
                     self.fentry = mapper
-                    print(f"2: {self}")
                 else:
                     self.seps[i - 1].entry = mapper
-                    print(f"3: {self}")
             else: #Or is it a limit separator?
                 new_array = cpy(self.seps[i].array)
                 new_array.map(mapper)
-                print(f"NA: {new_array}")
-                print(f"S: {self}")
                 self.seps.insert(i, Separator(new_array, 1))
-                print(f"4: {self}")
     
         return self.simplify()
 
@@ -171,8 +149,6 @@ class Expression:
         return f"[{self.array}]{self.parameter}"
     
     def evaluate(self): #Evaluate expression
-        print(f"{self.value} # {self.array} # {self.parameter}")
-        
         if self.value != -1:
             return self
         
@@ -186,19 +162,16 @@ class Expression:
             self.parameter = Expression(value = 10)
             for i in range(oldp):
                 self.parameter = cpy(self)
-            self = self.parameter
         elif self.array.fentry == 0:
             if len(self.array.seps) == 0:
-                self.value = 10 ** (self.parameter.value + 1)
+                self.value = 10 ** self.parameter.value
             else:
                 self.array = self.array.map(self.parameter.value)
-                self.parameter = 10
+                self.parameter = Expression(value = 10)
         
         return self
 
 def get_array(string): #String to array
-    print(f"A: {string}")
-    
     i = 0
     while i < len(string) and string[i] in nums:
         i += 1
@@ -227,12 +200,9 @@ def get_array(string): #String to array
         entry = int(string[j:i]) #Get next entry
         seps.append(Separator(array, entry))
     
-    print(str(fentry) + "".join(" " + str(e.entry) for e in seps))
     return Array(fentry, seps)
     
 def get_expression(string): #String to expression
-    print("E: " + string)
-
     if string[0] in nums:
         return Expression(value = int(string))
     
@@ -268,15 +238,24 @@ def clear_and_get_expression(string):
     string = clear_expression(string) #Clear expression from unused characters
     return get_expression(string)
 
-while (1):
+while 1:
     expr = input("Insert expression to evaluate: ") #Ask for input
     expr = clear_and_get_expression(expr) #Turn into expression
-    print(f"Output: {expr.evaluate()}")
     
-    '''
-    a = input("Insert first array: ") #Ask for input
-    a = get_array(a) #Turn into array
-    b = input("Insert second array: ") #Ask for input
-    b = get_array(b) #Turn into array
-    print(f"Output: {Array.compare(a, b)}")
-    '''
+    while 1: #Evaluate and ask if user wants to revaluate it
+        print(f"Output: {expr.evaluate()}")
+    
+        if expr.value != -1:
+            print("Expression evaluated to a number") #Was expression evaluated to a number?
+            break
+    
+        rev = 0
+        while 1:
+            rev_input = input("Revaluate expression? (y/n) ")
+            if rev_input == 'n':
+                break
+            if rev_input == 'y':
+                rev = 1
+                break
+        if not rev:
+            break
