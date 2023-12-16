@@ -15,17 +15,17 @@ class Array: #Array and separators
         return f"{self.fentry}{''.join((',' if s.array.fentry == 0 and len(s.array.seps) == 0 else '[' + str(s.array) + ']') + str(s.entry) for s in self.seps)}"
     
     def __eq__(self, x):
-        return self.compare(self, x) == 0
+        return Array.compare(self, x) == 0
     def __gt__(self, x):
-        return self.compare(self, x) == 1
+        return Array.compare(self, x) == 1
     def __lt__(self, x):
-        return self.compare(self, x) == -1
+        return Array.compare(self, x) == -1
     def __ne__(self, x):
-        return self.compare(self, x) != 0
+        return Array.compare(self, x) != 0
     def __le__(self, x):
-        return self.compare(self, x) != 1
+        return Array.compare(self, x) != 1
     def __ge__(self, x):
-        return self.compare(self, x) != -1
+        return Array.compare(self, x) != -1
     
     @staticmethod
     def compare(a, b): #Compare arrays     
@@ -251,7 +251,7 @@ while 1:
     
         rev = 0
         while 1:
-            rev_input = input("Revaluate expression? (y/n) ")
+            rev_input = input("Revaluate expression? (y/n) ").lower()
             if rev_input == 'n':
                 break
             if rev_input == 'y':
